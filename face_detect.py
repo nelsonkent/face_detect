@@ -25,9 +25,16 @@ def handerImage(imagePath, cascPath):
     for (x, y, w, h) in faces:
         crop = image[y:y+h,x:x+w]
         count = count + 1
-        cv2.imshow('crop'+str(count+1), crop)
-        print(count)
-        
+        ##存储
+        import time
+        filePath = "C:\\Users\\nelson\\Desktop\\face_detect\\happy\\"
+        now = time.time()
+        fileName = str(now) 
+        filePath = filePath + fileName + ".png"
+        print(filePath)
+        cv2.imwrite(filePath, crop)
+        ##cv2.imshow('crop'+str(count+1), crop)
+    print(count)   
 
     for (x, y, w, h) in faces:
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
