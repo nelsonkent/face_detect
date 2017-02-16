@@ -10,7 +10,7 @@ import re ##类似pattern
 import threading
 import codecs
 import time
-
+import face_detect
 dirPath = 'happy'
 history_queue = queue.Queue()
 pend_queue = queue.Queue()
@@ -173,9 +173,10 @@ def downImg(inputs):
                         print ('File %s exist.' % filePath)
                         continue
                     print(filePath)
-                    with open(filePath, 'wb') as fp:
-                        fp.write(stream)
-                        fp.close()
+                    face_detect.handerImage(filePath ,'haarcascade_frontalface_default.xml')
+                   ## with open(filePath, 'wb') as fp:
+                     ##    fp.write(stream)
+                    ##     fp.close()"""
                 pend_queue.task_done()
                 print(imgUrl)
             else:
