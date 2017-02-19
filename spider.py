@@ -1,11 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Author: loveNight
-# @Date:   2015-10-28 19:59:24
-# @Last Modified by:   loveNight
-# @Last Modified time: 2015-11-15 19:24:57
-
-
 import urllib
 import requests
 import os
@@ -17,6 +10,7 @@ from datetime import datetime as dt
 from multiprocessing.dummy import Pool
 from multiprocessing import Queue
 import face_detect
+
 
 class BaiduImgDownloader(object):
 
@@ -76,10 +70,11 @@ class BaiduImgDownloader(object):
         if " " in word:
             raise AttributeError("本脚本仅支持单个关键字")
         self.word = word
+        self.imageHander = face_detect.ImageHander('haarcascade_frontalface_default.xml')
         self.char_table = {ord(key): ord(value)
                            for key, value in BaiduImgDownloader.char_table.items()}
         if not dirpath:
-            dirpath = os.path.join(sys.path[0], 'results')
+            dirpath = os.path.join(sys.path[0], 'downloads')
         self.dirpath = dirpath
         self.jsonUrlFile = os.path.join(sys.path[0], 'jsonUrl.txt')
         self.logFile = os.path.join(sys.path[0], 'logInfo.txt')
@@ -162,16 +157,20 @@ class BaiduImgDownloader(object):
             url = url.replace(key, value)
         # 再替换剩下的字符
         return url.translate(self.char_table)
-    
 
     def __buildUrls(self):
         """json请求网址生成器"""
         word = urllib.parse.quote(self.word)
         url = r"http://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&ct=201326592&fp=result&queryWord={word}&cl=2&lm=-1&ie=utf-8&oe=utf-8&st=-1&ic=0&word={word}&face=0&istype=2nc=1&pn={pn}&rn=60"
         time.sleep(self.delay)
-        html = self.session.get(url.format(word=word, pn=0), timeout = 15).content.decode('utf-8')
+        try:
+            html = self.session.get(url.format(word=word, pn=0), timeout = 15).content.decode('utf-8')
+        except requests.exceptions.RequestException as e:
+            print('timeout for url : %s' % url)
+            return 
         results = re.findall(r'"displayNum":(\d+),', html)
         maxNum = int(results[0]) if results else 0
+        maxNum = 1000
         urls = [url.format(word=word, pn=x)
                 for x in range(0, maxNum + 1, 60)]
         with open(self.jsonUrlFile, "w", encoding="utf-8") as f:
@@ -182,14 +181,15 @@ class BaiduImgDownloader(object):
     def __resolveImgUrl(self, url):
         """从指定网页中解析出图片URL"""
         time.sleep(self.delay)
-        
-        html = self.session.get(url, timeout = 15).content.decode('utf-8')
+        try:
+            html = self.session.get(url, timeout = 15).content.decode('utf-8')
+        except requests.exceptions.RequestException as e:
+            print('timeout for url : %s' % url)
+            return 
         datas = self.re_objURL.findall(html)
         imgs = [Image(self.decode(x[0]), x[1]) for x in datas]
         self.messageQueue.put(self.printPrefix + "已解析出 %s 个图片网址" % len(imgs))
         self.queue.put(imgs)
-        for img in imgs:
-            print(img.url)
 
     def __downImg(self, img):
         """下载单张图片，传入的是Image对象"""
@@ -212,12 +212,13 @@ class BaiduImgDownloader(object):
                 self.__saveError(message)
                 return
         index = self.__getIndex()
-        # index从0开始
-        #self.messageQueue.put("已下载 %s 张图片：%s" % (index + 1, imgUrl))
-        #filename = os.path.join(self.dirpath, str(index) + "." + img.type)
-        #with open(filename, "wb") as f:
-            #f.write(res.content)
-        face_detect.handerImage(res.content ,'haarcascade_frontalface_default.xml')
+        #index从0开始
+        self.messageQueue.put("已处理 %s 张图片：%s" % (index + 1, imgUrl))
+        filename = os.path.join(self.dirpath, str(index) + "." + img.type)
+        with open(filename, "wb") as f:
+            f.write(res.content)
+            self.imageHander.handerImage(filename, 'happy', img.type)
+
 
     def __saveError(self, message):
         self.lock.acquire()
@@ -242,6 +243,6 @@ if __name__ == '__main__':
     print("欢迎使用百度图片下载脚本！\n目前仅支持单个关键词。")
     print("下载结果保存在脚本目录下的results文件夹中。")
     print("=" * 50)
-    word = input("请输入你要下载的图片关键词：\n")
-    down = BaiduImgDownloader(word)
+    #word = input("请输入你要下载的图片关键词：")
+    down = BaiduImgDownloader('高兴人脸')
     down.start()
