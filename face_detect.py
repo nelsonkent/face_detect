@@ -25,7 +25,7 @@ class ImageHander(object):
         # Detect faces in the image
         faces = self.faceCascade.detectMultiScale(
             gray,
-            scaleFactor=1.2,
+            scaleFactor=1.3,
             minNeighbors=5,
             minSize=(30, 30),
             flags = cv2.CASCADE_SCALE_IMAGE
@@ -49,5 +49,7 @@ class ImageHander(object):
 
 if __name__ == '__main__':
     imageHander = ImageHander('haarcascade_frontalface_default.xml')
+	imageHander.handerImage('https://www.google.com/happy%20human%20face', 'happy', 'png')
     imageHander.handerImage('http://img.ishuo.cn/1609/1474689789.jpg', 'happy', 'jpg')
+	cv2.waitKey(0)
 ### Draw a rectangle around the faces
