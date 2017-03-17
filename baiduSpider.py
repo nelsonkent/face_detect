@@ -166,7 +166,7 @@ class BaiduSpider(object):
                      html = ''
               results = re.findall(r'"displayNum":(\d+),', html)
               maxNum = int(results[0]) if results else 0
-              maxNum = min(maxNum, 400000)
+              maxNum = 80000
               urls = [url.format(word=word, pn=x)
                       for x in range(0, maxNum + 1, 30)]
               with open('jsonUrls.txt', 'w') as file:
@@ -199,34 +199,10 @@ class BaiduSpider(object):
 
 def main():
     args = {
-    "厌恶 人":"disgusted",
-    "惊喜 人":"suprised",
-    "悲伤并恐惧 人":"fraid",
-    "悲愤 人":"SadnessAndAngry",
-    "悲伤并惊讶 人":"SadnessAndSurprise",
-    "悲伤并厌恶 人":"SadnessAndDisgusted",
-    "恐惧并愤怒 人":"FearAndAnger",
-    "恐惧并厌恶 人":"FearAndDisgusted",
-    "愤怒并惊讶 人":"AngerAndSurprise",
-    "愤怒并厌恶 人":"AngerAndDisgusted",
-    "厌恶并惊讶 人":"DisgustedAndSurprise",
-    "惊惧 人":"frightened",
-    "仇恨 人":"hatred",
-    "疑问 人":"doubt",
-    "崇敬 人":"respect",
-    "向往（渴望） 人":"yearn ",
-    "焦急 人":"anxiety",
-    "冷漠 人":"indifference",
-    "舒适（享受） 人":"comfort",
-    "热爱（热情） 人":"love",
-    "好奇 人":"curiousness",
-    "骄傲（自豪） 人":"pride",
-    "嫉妒 人":"jealous ",
-    "困窘（害羞） 人":"fraid",
-    "轻蔑 人":"embarrassed",
-    "疲劳 人":"tired"}
+    "困窘（害羞） 人":"shy",
+}
     for searchWord in args.keys():
-        sysdirPath = args[searchWord]
+        sysdirPath = 'datas1/' + args[searchWord] 
         print('if you want to start for nothing clear all the txt file in this folder !')
         print('baiduSpider start!')
         #searchWord = input('enter search word in baidu.com:')
@@ -236,7 +212,7 @@ def main():
         global dirPath
         dirPath = sysdirPath
         print('search %s image in baidu.com save file to / %s' % (searchWord, dirPath))
-        baiduSpider = BaiduSpider(2, searchWord)
+        baiduSpider = BaiduSpider(2, args[searchWord]+" face")
         urls = baiduSpider.buildUrls()
         print('urls is ready')
         
@@ -296,12 +272,13 @@ if __name__=='__main__':
 ##button['command'] = on_click    #事件关联函数
 ##button.pack()
 ##root.mainloop()
-##args = {"恐惧 人":"fraid",
+##args = {
+##	  "恐惧 人":"fraid",
 ##    "愤怒 人":"angry",
 ##    "惊讶 人":"shocked",
 ##    "厌恶 人":"disgusted",
 ##    "惊喜 人":"suprised",
-##    "悲伤并恐惧 人":"fraid",
+##    "悲伤并恐惧 人":"SadnessAndfraid",
 ##    "悲愤 人":"SadnessAndAngry",
 ##    "悲伤并惊讶 人":"SadnessAndSurprise",
 ##    "悲伤并厌恶 人":"SadnessAndDisgusted",
@@ -314,14 +291,17 @@ if __name__=='__main__':
 ##    "仇恨 人":"hatred",
 ##    "疑问 人":"doubt",
 ##    "崇敬 人":"respect",
-##    "向往（渴望） 人":"yearn ",
+##    "向往（渴望） 人":"yearn",
+##    "嫉妒 人":"jealous",
 ##    "焦急 人":"anxiety",
 ##    "冷漠 人":"indifference",
 ##    "舒适（享受） 人":"comfort",
 ##    "热爱（热情） 人":"love",
 ##    "好奇 人":"curiousness",
 ##    "骄傲（自豪） 人":"pride",
-##    "嫉妒 人":"jealous ",
-##    "困窘（害羞） 人":"fraid",
+##    "困窘（害羞） 人":"shy",
 ##    "轻蔑 人":"embarrassed",
-##    "疲劳 人":"tired"}
+##    "疲劳 人":"tired"
+##    "担忧":"worried"
+##    "悲伤":"sad"
+##    "愉快":"happy"}
